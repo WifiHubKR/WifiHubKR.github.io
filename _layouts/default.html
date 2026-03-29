@@ -1,64 +1,86 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <!-- Document Settings -->
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+---
+layout: compress
+---
 
-    <!-- Page Meta -->
-    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.name }}{% endif %}</title>
-    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+<!doctype html>
 
-    <!-- Mobile Meta -->
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% include origin-type.html %}
 
-    <!-- Brand icon -->
-    <link rel="shortcut icon" href="{{ site.baseurl }}assets/images/favicon.ico" >
+{% include lang.html %}
 
-    <!-- Styles'n'Scripts -->
-    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}assets/css/screen.css" />
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}assets/css/syntax.css" />
+{% if site.theme_mode %}
+  {% capture prefer_mode %}data-mode="{{ site.theme_mode }}"{% endcapture %}
+{% endif %}
 
-    <!-- highlight.js -->
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
-    <style>.hljs { background: none; }</style>
+<!-- `site.alt_lang` can specify a language different from the UI -->
+<html lang="{{ page.lang | default: site.alt_lang | default: site.lang }}" {{ prefer_mode }}>
+  {% include head.html lang=lang %}
 
-    <!-- Ghost outputs important style and meta data with this tag -->
-    {% include head.html %}
+  <body>
+    {% include sidebar.html lang=lang %}
 
-</head>
-<body class="{% if paginator.page > 1 %}paged archive-template{% elsif page.class %}{{ page.class }}{% else %}home-template{% endif %} nav-closed">
+    <div id="main-wrapper" class="d-flex justify-content-center">
+      <div class="container d-flex flex-column px-xxl-5">
+        {% include topbar.html lang=lang %}
 
-    <!-- The blog navigation links -->
-    {% include navigation.html %}
+        <div class="row flex-grow-1">
+          <main aria-label="Main Content" class="col-12 col-lg-11 col-xl-9 px-md-4">
+            {% if layout.layout == 'default' %}
+              {% include refactor-content.html content=content lang=lang %}
+            {% else %}
+              {{ content }}
+            {% endif %}
+          </main>
 
-    <div class="site-wrapper">
+          <!-- panel -->
+          <aside aria-label="Panel" id="panel-wrapper" class="col-xl-3 ps-2 text-muted">
+            <div class="access">
+              {% include_cached update-list.html lang=lang %}
+              {% include_cached trending-tags.html lang=lang %}
+            </div>
 
-        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
-        {{ content }}
+            {% for _include in layout.panel_includes %}
+              {% assign _include_path = _include | append: '.html' %}
+              {% include {{ _include_path }} lang=lang %}
+            {% endfor %}
+          </aside>
+        </div>
 
-        <!-- The tiny footer at the very bottom -->
-        <footer class="site-footer clearfix">
-          <section class="copyright"><a href="{{ site.baseurl }}">{{ site.name }}</a> &copy; {{  site.time | date: '%Y' }}</section>
-          <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> using <a href="https://github.com/jekyllt/jasper">Jasper</a></section>
-        </footer>
+        <div class="row">
+          <!-- tail -->
+          <div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 px-md-4">
+            {% for _include in layout.tail_includes %}
+              {% assign _include_path = _include | append: '.html' %}
+              {% include {{ _include_path }} lang=lang %}
+            {% endfor %}
+
+            {% include_cached footer.html lang=lang %}
+          </div>
+        </div>
+
+        {% include_cached search-results.html lang=lang %}
+      </div>
+
+      <aside aria-label="Scroll to Top">
+        <button id="back-to-top" type="button" class="btn btn-lg btn-box-shadow">
+          <i class="fas fa-angle-up"></i>
+        </button>
+      </aside>
     </div>
-    <!-- highlight.js -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
 
-    <!-- jQuery needs to come before `{{ghost_foot}}` so that jQuery can be used in code injection -->
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-    <!-- Ghost outputs important scripts and data with this tag -->
-    <!-- {{ghost_foot}} -->
-    <!-- Add Google Analytics  -->
-    {% include analytics.html %}
-    <!-- Fitvids makes video embeds responsive and awesome -->
-    <script type="text/javascript" src="{{ site.baseurl }}assets/js/jquery.fitvids.js"></script>
-    <!-- The main JavaScript file for Casper -->
-    <script type="text/javascript" src="{{ site.baseurl }}assets/js/index.js"></script>
+    <div id="mask" class="d-none position-fixed w-100 h-100 z-1"></div>
 
-</body>
+    {% if site.pwa.enabled %}
+      {% include_cached notification.html lang=lang %}
+    {% endif %}
+
+    <!-- Embedded scripts -->
+
+    {% for _include in layout.script_includes %}
+      {% assign _include_path = _include | append: '.html' %}
+      {% include {{ _include_path }} %}
+    {% endfor %}
+
+    {% include_cached search-loader.html lang=lang %}
+  </body>
 </html>

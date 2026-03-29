@@ -1,31 +1,32 @@
-# OS X
-.DS_Store
-
-# Jekyll build
-/_site/
-.jekyll-metadata
-#Gemfile.lock
-
-# webstorm
-.idea/
-
-# others
-*.swp
-
-# site build
-*.gem
-*.rbc
+# Bundler cache
 .bundle
-.config
-coverage
-InstalledFiles
-lib/bundler/man
-pkg
-rdoc
-spec/reports
-test/tmp
-test/version_tmp
-tmp
 vendor
 Gemfile.lock
+
+# Jekyll cache
+.jekyll-cache
+.jekyll-metadata
+_site
+
+# RubyGems
+*.gem
+
+# NPM dependencies
 node_modules
+package-lock.json
+
+# IDE configurations
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# Misc
+_sass/vendors
+assets/js/dist
+
+# Hidden system files
+*~
+.DS_Store
+Thumbs.db

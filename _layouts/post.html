@@ -1,139 +1,178 @@
 ---
 layout: default
-disqus: false
-class: 'post-template'
+panel_includes:
+  - toc
+tail_includes:
+  - related-posts
+  - post-nav
+script_includes:
+  - comment
 ---
-<!-- default -->
 
-<!-- The comment above "< default" means - insert everything in this file into -->
-    <!-- the [body] of the default.hbs template, which contains our header/footer. -->
+{% include lang.html %}
 
-<!-- Everything inside the #post tags pulls data from the post -->
-<!-- #post -->
+{% include toc-status.html %}
 
-<header class="main-header post-head {% if page.cover %}" style="background-image: url({{ site.baseurl }}{{ page.cover }}) {% else %}no-cover{% endif %}">
-    <nav class="main-nav {% if page.cover %} overlay {% endif %} clearfix">
-        {% if page.logo %}<a class="blog-logo" href="{{ site.baseurl }}"><img src="{{ site.baseurl }}{{ page.logo }}" alt="Blog Logo" /></a>{% endif %}
-        {% if page.navigation %}
-            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+<article class="px-1" data-toc="{{ enable_toc }}">
+  <header>
+    <h1 data-toc-skip>{{ page.title }}</h1>
+    {% if page.description %}
+      <p class="post-desc fw-light mb-4">{{ page.description }}</p>
+    {% endif %}
+
+    <div class="post-meta text-muted">
+      <!-- published date -->
+      <span>
+        {{ site.data.locales[lang].post.posted }}
+        {% include datetime.html date=page.date tooltip=true lang=lang %}
+      </span>
+
+      <!-- lastmod date -->
+      {% if page.last_modified_at and page.last_modified_at != page.date %}
+        <span>
+          {{ site.data.locales[lang].post.updated }}
+          {% include datetime.html date=page.last_modified_at tooltip=true lang=lang %}
+        </span>
+      {% endif %}
+
+      {% if page.image %}
+        {% capture src %}src="{{ page.image.path | default: page.image }}"{% endcapture %}
+        {% capture class %}class="preview-img{% if page.image.no_bg %}{{ ' no-bg' }}{% endif %}"{% endcapture %}
+        {% capture alt %}alt="{{ page.image.alt | xml_escape | default: "Preview Image" }}"{% endcapture %}
+
+        {% if page.image.lqip %}
+          {%- capture lqip -%}lqip="{{ page.image.lqip }}"{%- endcapture -%}
         {% endif %}
-    </nav>
-</header>
 
-<main class="content" role="main">
+        <div class="mt-3 mb-3">
+          <img {{ src }} {{ class }} {{ alt }} w="1200" h="630" {{ lqip }}>
+          {%- if page.image.alt -%}
+            <figcaption class="text-center pt-2 pb-2">{{ page.image.alt }}</figcaption>
+          {%- endif -%}
+        </div>
+      {% endif %}
 
-    <article class="{{ page.subclass }}">
+      <div class="d-flex justify-content-between">
+        <!-- author(s) -->
+        <span>
+          {% if page.author %}
+            {% assign authors = page.author %}
+          {% elsif page.authors %}
+            {% assign authors = page.authors %}
+          {% endif %}
 
-        <header class="post-header">
-            <h1 class="post-title">{{ page.title }}</h1>
-            <section class="post-meta">
-            <!-- <a href='{{ site.baseurl }}{{ page.about }}'>{{ site.author }}</a> -->
+          {{ site.data.locales[lang].post.written_by }}
 
-            {% for author in site.data.authors %}
-                {% if author[1].username == page.author %}
-                    <a href='{{ site.baseurl }}author/{{ page.author }}'>{{ author[1].name }}</a>
-                {% endif %}
-            {% endfor %}
-            <time class="post-date" datetime="{{ page.date | date:'%Y-%m-%d' }}">{{ page.date | date_to_string }}</time>
-                <!-- [[tags prefix=" on "]] -->
-                {% if page.tags.size > 0 %}
-                on
-                {% for tag in page.tags %}
-                    {% if forloop.index == page.tags.size %}
-                       <a href='{{ site.baseurl }}tag/{{ tag }}'>{{ tag | capitalize }}</a>
-                    {% else %}
-                       <a href='{{ site.baseurl }}tag/{{ tag }}'>{{ tag | capitalize }}</a>,
-                    {% endif %}
-                {% endfor %}
-                {% endif %}
-            </section>
-        </header>
-
-        <section class="post-content">
-
-            {{ content }}
-
-        </section>
-
-        <footer class="post-footer">
-
-            <!-- Everything inside the #author tags pulls data from the author -->
-            <!-- #author-->
-            {% for author in site.data.authors %}
-                {% if author[1].username == page.author %}
-                    {% if author[1].assets %}
-                        <figure class="author-image">
-                            <a class="img" href="{{ site.baseurl }}author/{{ page.author }}" style="background-image: url({{ site.baseurl }}{{ author[1].assets }})"><span class="hidden">{{ page.author }}'s Picture</span></a>
-                        </figure>
-                    {% endif %}
-
-                    <section class="author">
-                        <h4><a href="{{ site.baseurl }}author/{{ page.author }}">{{ author[1].name }}</a></h4>
-
-                        {% if author[1].bio %}
-                            <p> {{ author[1].bio }}</p>
-                        {% else %}
-                            <p>Read <a href="{{ site.baseurl }}author/{{ page.author }}">more posts</a> by this author.</p>
-                        {% endif %}
-                        <div class="author-meta">
-                            {% if author[1].location %}<span class="author-location icon-location"> {{ author[1].location }}</span>{% endif %}
-                            {% if author[1].url %}<span class="author-link icon-link"><a href="{{ author[1].url_full }}"> {{ author[1].url }}</a></span>{% endif %}
-                        </div>
-                    </section>
-
-                    <!-- /author  -->
-
-                    <section class="share">
-                        <h4>Share this post</h4>
-                        <a class="icon-twitter" href="http://twitter.com/share?text={{ page.title }}&amp;url={{ site.url }}{{ page.url | remove: '/' }}"
-                            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                            <span class="hidden">Twitter</span>
-                        </a>
-                        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ site.url }}{{ page.url | remove: '/' }}"
-                            onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                            <span class="hidden">Facebook</span>
-                        </a>
-                        <a class="icon-google-plus" href="https://plus.google.com/share?url={{ site.url }}{{ page.url | remove: '/' }}"
-                           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                            <span class="hidden">Google+</span>
-                        </a>
-                    </section>
-                {% endif %}
-            {% endfor %}
-
-            <!-- Add Disqus Comments -->
-            {% if page.disqus %}
-                {% include disqus.html %}
+          <em>
+            {% if authors %}
+              {% for author in authors %}
+                {% if site.data.authors[author].url -%}
+                  <a href="{{ site.data.authors[author].url }}">{{ site.data.authors[author].name }}</a>
+                {%- else -%}
+                  {{ site.data.authors[author].name }}
+                {%- endif %}
+                {% unless forloop.last %}{{ '</em>, <em>' }}{% endunless %}
+              {% endfor %}
+            {% else %}
+              <a href="{{ site.social.links[0] }}">{{ site.social.name }}</a>
             {% endif %}
+          </em>
+        </span>
 
-        </footer>
+        <div>
+          <!-- pageviews -->
+          {% if site.pageviews.provider and site.analytics[site.pageviews.provider].id %}
+            <span>
+              <em id="pageviews">
+                <i class="fas fa-spinner fa-spin small"></i>
+              </em>
+              {{ site.data.locales[lang].post.pageview_measure }}
+            </span>
+          {% endif %}
 
-    </article>
+          <!-- read time -->
+          {% include read-time.html content=content prompt=true lang=lang %}
+        </div>
+      </div>
+    </div>
+  </header>
 
-</main>
+  {% if enable_toc %}
+    <div id="toc-bar" class="d-flex align-items-center justify-content-between invisible">
+      <span class="label text-truncate">{{ page.title }}</span>
+      <button type="button" class="toc-trigger btn me-1">
+        <i class="fa-solid fa-list-ul fa-fw"></i>
+      </button>
+    </div>
 
-<aside class="read-next">
+    <button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm">
+      <span class="label ps-2 pe-1">{{- site.data.locales[lang].panel.toc -}}</span>
+      <i class="fa-solid fa-angle-right fa-fw"></i>
+    </button>
 
-    <!-- [[! next_post ]] -->{{ post.url | remove: '/' }}
-    {% if page.next %}
-        <a class="read-next-story {% if page.next.cover %}" style="background-image: url({{ site.baseurl }}{{ page.next.cover }}){% else %}no-cover{% endif %}" href="{{ site.baseurl }}{{ page.next.url | remove: '/' }}">
-            <section class="post">
-                <h2>{{ page.next.title }}</h2>
-                <p>{{ page.next.content | strip_html | truncatewords:15 }}</p>
-            </section>
-        </a>
+    <dialog id="toc-popup" class="p-0">
+      <div class="header d-flex flex-row align-items-center justify-content-between">
+        <div class="label text-truncate py-2 ms-4">{{- page.title -}}</div>
+        <button id="toc-popup-close" type="button" class="btn mx-1 my-1 opacity-75">
+          <i class="fas fa-close"></i>
+        </button>
+      </div>
+      <div id="toc-popup-content" class="px-4 py-3 pb-4"></div>
+    </dialog>
+  {% endif %}
+
+  <div class="content">
+    {{ content }}
+  </div>
+
+  <div class="post-tail-wrapper text-muted">
+    <!-- categories -->
+    {% if page.categories.size > 0 %}
+      <div class="post-meta mb-3">
+        <i class="far fa-folder-open fa-fw me-1"></i>
+        {% for category in page.categories %}
+          <a href="{{ site.baseurl }}/categories/{{ category | slugify | url_encode }}/">{{ category }}</a>
+          {%- unless forloop.last -%},{%- endunless -%}
+        {% endfor %}
+      </div>
     {% endif %}
-    <!-- [[! /next_post ]] -->
-    <!-- [[! prev_post ]] -->
-    {% if page.previous %}
-        <a class="read-next-story prev {% if page.previous.cover %}" style="background-image: url({{ site.baseurl }}{{ page.previous.cover }}){% else %}no-cover{% endif %}" href="{{ site.baseurl }}{{ page.previous.url | remove: '/' }}">
-            <section class="post">
-                <h2>{{ page.previous.title }}</h2>
-                <p>{{ page.previous.content | strip_html | truncatewords:15 }}</p>
-            </section>
-        </a>
-    {% endif %}
-    <!-- [[! /prev_post ]] -->
-</aside>
 
-<!-- /post -->
+    <!-- tags -->
+    {% if page.tags.size > 0 %}
+      <div class="post-tags">
+        <i class="fa fa-tags fa-fw me-1"></i>
+        {% for tag in page.tags %}
+          <a
+            href="{{ site.baseurl }}/tags/{{ tag | slugify | url_encode }}/"
+            class="post-tag no-text-decoration"
+          >
+            {{- tag -}}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div
+      class="
+        post-tail-bottom
+        d-flex justify-content-between align-items-center mt-5 pb-2
+      "
+    >
+      <div class="license-wrapper">
+        {% if site.data.locales[lang].copyright.license.template %}
+          {% capture _replacement %}
+        <a href="{{ site.data.locales[lang].copyright.license.link }}">
+          {{ site.data.locales[lang].copyright.license.name }}
+        </a>
+        {% endcapture %}
+
+          {{ site.data.locales[lang].copyright.license.template | replace: ':LICENSE_NAME', _replacement }}
+        {% endif %}
+      </div>
+
+      {% include post-sharing.html lang=lang %}
+    </div>
+    <!-- .post-tail-bottom -->
+  </div>
+  <!-- div.post-tail-wrapper -->
+</article>
